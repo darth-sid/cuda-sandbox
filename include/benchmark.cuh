@@ -15,5 +15,6 @@ struct BenchmarkResult {
 
 void print_result(const BenchmarkResult& result);
 BenchmarkResult run_vector_add_benchmark(int n, int block_size);
+BenchmarkResult run_matmul_benchmark(int m, int n, int k, int block_size);
 
 #endif

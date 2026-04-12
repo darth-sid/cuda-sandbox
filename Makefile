@@ -5,7 +5,7 @@ endif
 
 NVCCFLAGS := -O3 -std=c++17 -Iinclude
 TARGET := cuda_bench
-SRC := src/main.cu src/benchmark.cu src/vector_add.cu
+SRC := src/main.cu src/benchmark.cu src/vector_add.cu src/matmul.cu
 
 .PHONY: build run clean print-env
 
@@ -14,7 +14,7 @@ print-env:
 
 build: $(TARGET)
 
-$(TARGET): $(SRC) include/benchmark.cuh include/cuda_check.cuh include/tensor_init.cuh
+$(TARGET): $(SRC) include/benchmark.cuh include/benchmark_utils.cuh include/cuda_check.cuh include/device_buffer.cuh include/tensor_init.cuh
 	$(NVCC) $(NVCCFLAGS) $(SRC) -o $(TARGET)
 
 run: build

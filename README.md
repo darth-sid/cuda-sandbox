@@ -28,7 +28,12 @@ Run:
 make run
 ```
 
-The default executable launches `run_vector_add_benchmark(1 << 20, 256)` and prints timing results plus a correctness check.
+The default executable launches:
+
+- `run_vector_add_benchmark(1 << 20, 256)`
+- `run_matmul_benchmark(512, 512, 512, 16)`
+
+and prints timing results plus a correctness check for both.
 
 ## Google Colab
 
@@ -68,8 +73,9 @@ If Colab starts without a GPU runtime, `nvidia-smi` will fail and the benchmark 
 - `include/tensor_init.cuh`: host-side initialization and verification helpers
 - `src/benchmark.cu`: result formatting
 - `src/vector_add.cu`: vector add kernel and the concrete benchmark flow
+- `src/matmul.cu`: naive matrix multiplication kernel and matching benchmark flow
 - `src/main.cu`: entry point
 
-To add another kernel later, follow the same pattern as `src/vector_add.cu`: keep the kernel, CPU reference implementation, and benchmark flow together unless shared code becomes clearly reusable. Planned additions include matrix multiplication, reduction, and softmax.
+To add another kernel later, follow the same pattern as `src/vector_add.cu` and `src/matmul.cu`: keep the kernel, CPU reference implementation, and benchmark flow together unless shared code becomes clearly reusable. Planned additions include reduction and softmax.
 
 This code is intended to compile on a CUDA-enabled Linux machine or Google Colab with an NVIDIA GPU runtime.
