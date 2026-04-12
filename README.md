@@ -1,62 +1,51 @@
 # CUDA Kernel Benchmarks
 
-This project is a small sandbox for benchmarking CUDA kernels without a heavy framework.
+Standalone CUDA benchmark harness for comparing kernel implementations against each other and against CPU baselines.
 
-The benchmark flow measures:
-
-- CPU runtime for a reference implementation
-- host to device transfer time
-- kernel execution time
-- device to host transfer time
-- end-to-end GPU runtime
+Each benchmark is a set of **runners** (CPU, naive GPU, optimized GPU) that all solve the same problem. Any runner can serve as the correctness baseline.
 
 ## Build
-
-Run:
 
 ```bash
 make build
 ```
 
-If `nvcc` is not on `PATH`, the `Makefile` also falls back to Colab's default CUDA compiler path: `/usr/local/cuda/bin/nvcc`.
+If `nvcc` is not on `PATH`, the `Makefile` falls back to `/usr/local/cuda/bin/nvcc`.
 
 ## Run
-
-Run:
 
 ```bash
 make run
 ```
 
-The default executable launches:
+Expected output:
 
-- `run_vector_add_benchmark(1 << 20, 256, {{"vector_add", launch_vector_add}})`
-- `run_matmul_benchmark(512, 512, 512, {{"matmul_naive", launch_naive_matmul}, {"matmul", launch_matmul}})`
+```
+=== vector_add ===
+  cpu:  X.XXX ms
+  gpu:  X.XXX ms  (total: X.XXX ms)
+  Speedup (cpu -> gpu):  XX.XXx   correct: yes
 
-and prints timing results plus a correctness check for both.
+=== matmul ===
+  cpu:  X.XXX ms
+  naive_gpu:  X.XXX ms  (total: X.XXX ms)
+  tiled_gpu:  X.XXX ms  (total: X.XXX ms)
+  Speedup (cpu -> naive_gpu):  XX.XXx   correct: yes
+  Speedup (cpu -> tiled_gpu):  XX.XXx   correct: yes
+```
 
 ## Google Colab
 
 1. Open a new Colab notebook.
-2. Set the runtime to GPU:
-   `Runtime` -> `Change runtime type` -> `T4 GPU` or any available NVIDIA GPU.
-3. Upload this repo or clone it into the notebook VM.
-
-If the repo is uploaded as a zip:
-
-```bash
-!unzip cuda-kernel-benchmarks.zip
-%cd cuda-kernel-benchmarks
-```
-
-If the repo is hosted in Git:
+2. Set runtime to GPU: `Runtime` → `Change runtime type` → `T4 GPU` (or any NVIDIA GPU).
+3. Clone or upload this repo:
 
 ```bash
 !git clone <your-repo-url>
 %cd cuda-kernel-benchmarks
 ```
 
-Then verify the CUDA toolchain and run the benchmark:
+Then verify and run:
 
 ```bash
 !nvidia-smi
@@ -64,18 +53,35 @@ Then verify the CUDA toolchain and run the benchmark:
 !make run
 ```
 
-If Colab starts without a GPU runtime, `nvidia-smi` will fail and the benchmark will not build correctly.
-
 ## Project layout
 
-- `include/cuda_check.cuh`: CUDA error handling macro
-- `include/benchmark.cuh`: benchmark result type and public API
-- `include/tensor_init.cuh`: host-side initialization and verification helpers
-- `src/benchmark.cu`: result formatting
-- `src/vector_add.cu`: vector add kernel and the concrete benchmark flow
-- `src/matmul.cu`: naive matrix multiplication kernel and matching benchmark flow
-- `src/main.cu`: entry point
+```
+include/
+  cuda_check.cuh        CUDA_CHECK macro
+  device_buffer.cuh     RAII DeviceBuffer<T>
+  tensor_init.cuh       fill_random, allclose
+  timing.cuh            time_cpu_ms, time_cuda_ms, iteration constants
+  benchmark.cuh         BenchmarkSuite, TimingResult, ComparisonResult, BenchmarkReport
 
-To add another kernel later, follow the same pattern as `src/vector_add.cu` and `src/matmul.cu`: keep the kernel, CPU reference implementation, and benchmark flow together unless shared code becomes clearly reusable. Planned additions include reduction and softmax.
+kernels/
+  vector_add.{cuh,cu}   vector add kernel + launch_vector_add
+  matmul.{cuh,cu}       matmul kernels + launch_naive_matmul, launch_matmul
 
-This code is intended to compile on a CUDA-enabled Linux machine or Google Colab with an NVIDIA GPU runtime.
+benchmarks/
+  vector_add_bench.{cuh,cu}   run_vector_add_bench (cpu + gpu runners)
+  matmul_bench.{cuh,cu}       run_matmul_bench (cpu + naive_gpu + tiled_gpu runners)
+
+src/
+  report.cu             print_report implementation
+
+main.cu                 entry point
+```
+
+## Adding a new kernel
+
+1. Add `kernels/<name>.cuh` and `kernels/<name>.cu` with the kernel and launch function.
+2. Add `benchmarks/<name>_bench.cuh` and `benchmarks/<name>_bench.cu` — create a `BenchmarkSuite`, register runners with `add_runner`, return `suite.run("cpu")`.
+3. Include the new bench header in `main.cu` and call `print_report(run_<name>_bench(...))`.
+4. Add the new `.cu` files to `SRC` in the `Makefile`.
+
+Planned additions: reduction, softmax.
