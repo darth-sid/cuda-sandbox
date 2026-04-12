@@ -6,24 +6,26 @@
 #include <random>
 #include <vector>
 
-inline void fill_random(std::vector<float>& values) {
-  static std::mt19937 rng(12345);
-  static std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+using namespace std;
+
+inline void fill_random(vector<float>& values) {
+  static mt19937 rng(12345);
+  static uniform_real_distribution<float> dist(-1.0f, 1.0f);
 
   for (float& value : values) {
     value = dist(rng);
   }
 }
 
-inline bool allclose(const std::vector<float>& a, const std::vector<float>& b,
+inline bool allclose(const vector<float>& a, const vector<float>& b,
                      float atol = 1e-5f, float rtol = 1e-4f) {
   if (a.size() != b.size()) {
     return false;
   }
 
-  for (std::size_t i = 0; i < a.size(); ++i) {
-    float diff = std::fabs(a[i] - b[i]);
-    float limit = atol + rtol * std::max(std::fabs(a[i]), std::fabs(b[i]));
+  for (size_t i = 0; i < a.size(); ++i) {
+    float diff = fabs(a[i] - b[i]);
+    float limit = atol + rtol * max(fabs(a[i]), fabs(b[i]));
     if (diff > limit) {
       return false;
     }

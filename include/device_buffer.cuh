@@ -6,10 +6,12 @@
 #include <cstddef>
 #include <cuda_runtime.h>
 
+using namespace std;
+
 template <typename T>
 class DeviceBuffer {
  public:
-  explicit DeviceBuffer(std::size_t count) : count_(count) {
+  explicit DeviceBuffer(size_t count) : count_(count) {
     CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&ptr_), count_ * sizeof(T)));
   }
 
@@ -47,7 +49,7 @@ class DeviceBuffer {
 
  private:
   T* ptr_ = nullptr;
-  std::size_t count_ = 0;
+  size_t count_ = 0;
 };
 
 #endif

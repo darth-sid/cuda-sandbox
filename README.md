@@ -30,8 +30,8 @@ make run
 
 The default executable launches:
 
-- `run_vector_add_benchmark(1 << 20, 256)`
-- `run_matmul_benchmark(512, 512, 512, 16)`
+- `run_vector_add_benchmark(1 << 20, 256, {{"vector_add", launch_vector_add}})`
+- `run_matmul_benchmark(512, 512, 512, {{"matmul_naive", launch_naive_matmul}, {"matmul", launch_matmul}})`
 
 and prints timing results plus a correctness check for both.
 

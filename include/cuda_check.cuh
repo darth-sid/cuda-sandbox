@@ -6,10 +6,12 @@
 #include <cstdlib>
 #include <iostream>
 
+using namespace std;
+
 inline void cuda_check_impl(cudaError_t error, const char* file, int line) {
   if (error != cudaSuccess) {
-    std::cerr << "CUDA error at " << file << ":" << line << " - "
-              << cudaGetErrorString(error) << std::endl;
+    cerr << "CUDA error at " << file << ":" << line << " - "
+         << cudaGetErrorString(error) << endl;
     exit(EXIT_FAILURE);
   }
 }

@@ -6,6 +6,8 @@
 #include <chrono>
 #include <cuda_runtime.h>
 
+using namespace std;
+
 constexpr int kEndToEndIterations = 1;
 constexpr int kTransferIterations = 5;
 constexpr int kKernelIterations = 20;
@@ -13,13 +15,13 @@ constexpr int kCpuIterations = 20;
 
 template <typename Operation>
 float time_cpu_ms(Operation operation, int iterations) {
-  auto start = std::chrono::high_resolution_clock::now();
+  auto start = chrono::high_resolution_clock::now();
   for (int i = 0; i < iterations; ++i) {
     operation();
   }
-  auto end = std::chrono::high_resolution_clock::now();
+  auto end = chrono::high_resolution_clock::now();
 
-  std::chrono::duration<float, std::milli> elapsed = end - start;
+  chrono::duration<float, milli> elapsed = end - start;
   return elapsed.count() / static_cast<float>(iterations);
 }
 
