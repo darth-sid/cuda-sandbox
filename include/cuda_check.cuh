@@ -6,14 +6,14 @@
 #include <cstdlib>
 #include <iostream>
 
-#define CUDA_CHECK(call)                                                         \
-  do {                                                                           \
-    cudaError_t error__ = (call);                                                \
-    if (error__ != cudaSuccess) {                                                \
-      std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << " - "      \
-                << cudaGetErrorString(error__) << std::endl;                     \
-      std::exit(EXIT_FAILURE);                                                   \
-    }                                                                            \
-  } while (0)
+inline void cuda_check_impl(cudaError_t error, const char* file, int line) {
+  if (error != cudaSuccess) {
+    std::cerr << "CUDA error at " << file << ":" << line << " - "
+              << cudaGetErrorString(error) << std::endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
+#define CUDA_CHECK(call) cuda_check_impl((call), __FILE__, __LINE__)
 
 #endif

@@ -1,9 +1,16 @@
-NVCC := nvcc
+NVCC ?= $(shell command -v nvcc 2>/dev/null)
+ifeq ($(NVCC),)
+NVCC := /usr/local/cuda/bin/nvcc
+endif
+
 NVCCFLAGS := -O3 -std=c++17 -Iinclude
 TARGET := cuda_bench
 SRC := src/main.cu src/benchmark.cu src/vector_add.cu
 
-.PHONY: build run clean
+.PHONY: build run clean print-env
+
+print-env:
+	@echo "NVCC=$(NVCC)"
 
 build: $(TARGET)
 

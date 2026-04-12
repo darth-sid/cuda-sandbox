@@ -1,8 +1,8 @@
 # CUDA Kernel Benchmarks
 
-This project provides a minimal CUDA C++ benchmarking harness for GPU kernels and includes a vector addition example to validate the workflow.
+This project is a small sandbox for benchmarking CUDA kernels without a heavy framework.
 
-The benchmark harness measures:
+The benchmark flow measures:
 
 - CPU runtime for a reference implementation
 - host to device transfer time
@@ -18,6 +18,8 @@ Run:
 make build
 ```
 
+If `nvcc` is not on `PATH`, the `Makefile` also falls back to Colab's default CUDA compiler path: `/usr/local/cuda/bin/nvcc`.
+
 ## Run
 
 Run:
@@ -28,21 +30,46 @@ make run
 
 The default executable launches `run_vector_add_benchmark(1 << 20, 256)` and prints timing results plus a correctness check.
 
+## Google Colab
+
+1. Open a new Colab notebook.
+2. Set the runtime to GPU:
+   `Runtime` -> `Change runtime type` -> `T4 GPU` or any available NVIDIA GPU.
+3. Upload this repo or clone it into the notebook VM.
+
+If the repo is uploaded as a zip:
+
+```bash
+!unzip cuda-kernel-benchmarks.zip
+%cd cuda-kernel-benchmarks
+```
+
+If the repo is hosted in Git:
+
+```bash
+!git clone <your-repo-url>
+%cd cuda-kernel-benchmarks
+```
+
+Then verify the CUDA toolchain and run the benchmark:
+
+```bash
+!nvidia-smi
+!make print-env
+!make run
+```
+
+If Colab starts without a GPU runtime, `nvidia-smi` will fail and the benchmark will not build correctly.
+
 ## Project layout
 
 - `include/cuda_check.cuh`: CUDA error handling macro
 - `include/benchmark.cuh`: benchmark result type and public API
 - `include/tensor_init.cuh`: host-side initialization and verification helpers
-- `src/benchmark.cu`: timing helpers and vector add benchmark flow
-- `src/vector_add.cu`: CUDA vector addition kernel
+- `src/benchmark.cu`: result formatting
+- `src/vector_add.cu`: vector add kernel and the concrete benchmark flow
 - `src/main.cu`: entry point
 
-Add new kernels in `src/` and expose their benchmark entry points through `include/benchmark.cuh` or a dedicated header as the project grows.
+To add another kernel later, follow the same pattern as `src/vector_add.cu`: keep the kernel, CPU reference implementation, and benchmark flow together unless shared code becomes clearly reusable. Planned additions include matrix multiplication, reduction, and softmax.
 
-Planned future kernels include:
-
-- matrix multiplication
-- reduction
-- softmax
-
-This code is intended to compile on a CUDA-enabled machine or in Google Colab with CUDA configured.
+This code is intended to compile on a CUDA-enabled Linux machine or Google Colab with an NVIDIA GPU runtime.
