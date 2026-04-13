@@ -9,23 +9,6 @@
 
 using namespace std;
 
-namespace {
-
-void matmul_cpu(const vector<float>& a, const vector<float>& b,
-                vector<float>& c, int m, int n, int k) {
-  for (int row = 0; row < m; ++row) {
-    for (int col = 0; col < n; ++col) {
-      float sum = 0.0f;
-      for (int inner = 0; inner < k; ++inner) {
-        sum += a[row * k + inner] * b[inner * n + col];
-      }
-      c[row * n + col] = sum;
-    }
-  }
-}
-
-}  // namespace
-
 BenchmarkReport run_matmul_bench(int m, int n, int k) {
   vector<float> h_a(static_cast<size_t>(m) * k);
   vector<float> h_b(static_cast<size_t>(k) * n);
@@ -47,10 +30,6 @@ BenchmarkReport run_matmul_bench(int m, int n, int k) {
   CUDA_CHECK(cudaMemcpy(d_b.get(), h_b.data(), b_bytes, cudaMemcpyHostToDevice));
 
   BenchmarkSuite suite("matmul");
-
-  suite.add_runner("cpu", false,
-      [&]() { matmul_cpu(h_a, h_b, h_cpu, m, n, k); },
-      [&]() -> vector<float> { return h_cpu; });
 
   suite.add_runner("naive_gpu", true,
       [&]() { launch_naive_matmul(d_a.get(), d_b.get(), d_c.get(), m, n, k); },
@@ -78,5 +57,5 @@ BenchmarkReport run_matmul_bench(int m, int n, int k) {
         CUDA_CHECK(cudaMemcpy(h_gpu.data(), d_c.get(), c_bytes, cudaMemcpyDeviceToHost));
       });
 
-  return suite.run("cpu", 1e-4f, 1e-3f);
+  return suite.run("naive_gpu", 1e-4f, 1e-3f);
 }
