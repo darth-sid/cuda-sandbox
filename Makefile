@@ -32,7 +32,7 @@ bench_no_l1: $(SRC)
 		$(NVCC) $(NVCCFLAGS) -Xptxas -dlcm=cg $(SRC) -o bench_no_l1
 
 bench_no_l2: $(SRC)
-		$(NVCC) $(NVCCFLAGS) -Xptxas -dlcm=cs $(SRC) -o bench_no_l1
+		$(NVCC) $(NVCCFLAGS) -Xptxas -dlcm=cs $(SRC) -o bench_no_l2
 
 clean:
 	rm -f $(TARGET)
